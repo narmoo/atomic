@@ -12,25 +12,25 @@ import java.lang.reflect.Array;
 public class Calculator {
     private JPanel calcPanel;
     private JTextField resultsTxt;
+    private JButton oneBtn;
+    private JButton twoBtn;
+    private JButton threeBtn;
+    private JButton fourBtn;
+    private JButton fiveBtn;
+    private JButton sixBtn;
+    private JButton sevenBtn;
+    private JButton eightBtn;
+    private JButton nineBtn;
     private JButton clearBtn;
     private JButton signBtn;
     private JButton percentBtn;
     private JButton divideBtn;
-    private JButton sevenBtn;
-    private JButton eightBtn;
-    private JButton nineBtn;
-    private JButton multiplyBtn;
-    private JButton fourBtn;
-    private JButton fiveBtn;
-    private JButton sixBtn;
+    private JButton addBtn;
     private JButton minusBtn;
+    private JButton multiplyBtn;
     private JButton zeroBtn;
     private JButton digitBtn;
     private JButton equalBtn;
-    private JButton oneBtn;
-    private JButton twoBtn;
-    private JButton threeBtn;
-    private JButton addBtn;
     private JButton mcBtn;
     private JButton mrBtn;
     private JButton mPlusBtn;
@@ -42,6 +42,10 @@ public class Calculator {
     private boolean toErase;
     private Double memory;
 
+    private Color btnColor;
+
+    private JButton activeBtn;
+
     private enum MemoryAction {MC, MR, M_PLUS, M_MINUS}
 
     public Calculator() {
@@ -52,7 +56,7 @@ public class Calculator {
                 "mrBtn", "mPlusBtn", "mMinusBtn"};
 
         String[] buttonsKeyStrokes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ESCAPE",
-                "control MINUS", "PERIOD", "ENTER", "shift EQUALS", "PERCENT", "SLASH", "X",
+                "control MINUS", "PERIOD", "ENTER", "shift EQUALS", "shift 5", "SLASH", "X",
                 "MINUS", "C", "R", "M", "N"};
 
         JButton[] buttonsObjects =  {oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, sixBtn,
@@ -95,6 +99,25 @@ public class Calculator {
 
         toErase = true;
         memory = 0.0;
+
+        btnColor = addBtn.getBackground();
+    }
+
+    public void setBtnActive (Operation operation) {
+
+        switch (operation) {
+            case ADDITION: activeBtn = addBtn; break;
+            case DIVISION: activeBtn = divideBtn; break;
+            case MULTIPLICATION: activeBtn = multiplyBtn; break;
+            case SUBTRACTION: activeBtn = minusBtn; break;
+            case PERCENTAGE: activeBtn = percentBtn; break;
+        }
+
+        activeBtn.setBackground(Color.CYAN);
+    }
+
+    public void setBtnInactive () {
+        if (activeBtn != null) activeBtn.setBackground(btnColor);
     }
 
     private class NumberBtnClicked extends AbstractAction {
@@ -126,11 +149,16 @@ public class Calculator {
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e){
             if(leftOperand != null) super.actionPerformed(e);
             calcOperation = operation;
-            leftOperand = Double.valueOf(resultsTxt.getText());
-            toErase = true;
+            try {
+                leftOperand = Double.valueOf(resultsTxt.getText());
+                toErase = true;
+                setBtnActive(operation);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -141,6 +169,7 @@ public class Calculator {
             resultsTxt.setText("");
             leftOperand = null;
             rightOperand = null;
+            setBtnInactive();
         }
     }
 
@@ -156,6 +185,8 @@ public class Calculator {
     private class EqualBtnClicked extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
+            setBtnInactive();
+
             if (leftOperand != null) {
                 rightOperand = Double.valueOf(resultsTxt.getText());
                 Double output = calcOperation.getOperator().applyAsDouble(leftOperand, rightOperand);
