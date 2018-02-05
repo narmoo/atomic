@@ -53,7 +53,7 @@ public class Calculator {
 
         String[] buttonsKeyStrokes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ESCAPE",
                 "control MINUS", "PERIOD", "ENTER", "shift EQUALS", "PERCENT", "SLASH", "X",
-                "MINUS", "C", "R", "pressed N", "B"};
+                "MINUS", "C", "R", "M", "N"};
 
         JButton[] buttonsObjects =  {oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, sixBtn,
                 sevenBtn, eightBtn, nineBtn, zeroBtn, clearBtn, signBtn, digitBtn,
