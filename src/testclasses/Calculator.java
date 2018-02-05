@@ -50,9 +50,16 @@ public class Calculator {
                 "sevenBtn", "eightBtn", "nineBtn", "zeroBtn", "clearBtn", "signBtn", "digitBtn",
                 "equalBtn", "addBtn", "percentBtn", "divideBtn", "multiplyBtn", "minusBtn", "mcBtn",
                 "mrBtn", "mPlusBtn", "mMinusBtn"};
-        String[] buttonsKeyStrokes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ESC", "control MINUS",
-                "PERIOD", "ENTER", "PLUS", "PERCENT", "SLASH", "X", "MINUS", "C", "R", "pressed N", "B"};
-        JButton[] buttonsObjects =  {oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, sixBtn, sevenBtn, eightBtn, nineBtn, zeroBtn, clearBtn, signBtn, digitBtn, equalBtn, addBtn, percentBtn, divideBtn, multiplyBtn, minusBtn, mcBtn, mrBtn, mPlusBtn, mMinusBtn};
+
+        String[] buttonsKeyStrokes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "ESCAPE",
+                "control MINUS", "PERIOD", "ENTER", "shift EQUALS", "PERCENT", "SLASH", "X",
+                "MINUS", "C", "R", "pressed N", "B"};
+
+        JButton[] buttonsObjects =  {oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, sixBtn,
+                sevenBtn, eightBtn, nineBtn, zeroBtn, clearBtn, signBtn, digitBtn,
+                equalBtn, addBtn, percentBtn, divideBtn, multiplyBtn, minusBtn, mcBtn,
+                mrBtn, mPlusBtn, mMinusBtn};
+
         InputMap imap = calcPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         ActionMap amap = calcPanel.getActionMap();
 
@@ -60,14 +67,6 @@ public class Calculator {
             imap.put(KeyStroke.getKeyStroke(buttonsKeyStrokes[i]), buttonsNames[i]);
             amap.put(buttonsNames[i], new SimulateClick(buttonsObjects[i]));
         }
-
-//        imap.put(KeyStroke.getKeyStroke('2'), "btn.2");
-
-        System.out.println(imap.allKeys());
-
-//        amap.put("btn.2", new SimulateClick(twoBtn));
-        System.out.println(amap.allKeys());
-
 
         sevenBtn.addActionListener(new NumberBtnClicked(sevenBtn.getText()));
         eightBtn.addActionListener(new NumberBtnClicked(eightBtn.getText()));
@@ -251,12 +250,10 @@ public class Calculator {
 
         public  SimulateClick (JButton button) {
             this.button = button;
-            System.out.println("Tworze " + button.getText());
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Akcja " + button.getText());
             button.doClick();
         }
     }
