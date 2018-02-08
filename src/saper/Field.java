@@ -24,6 +24,14 @@ public class Field extends JButton {
 
     public void increaseNeighbours() {
         neighbours++;
-        this.setText(Integer.toString(neighbours));
+    }
+
+    public void displayContent() {
+        if (this.getWithBomb()) {
+            this.setText("B");
+        } else {
+            this.setText(Integer.toString(neighbours));
+        }
+        this.setEnabled(false);
     }
 }

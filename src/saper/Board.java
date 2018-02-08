@@ -9,11 +9,15 @@ import java.awt.*;
 import java.awt.event.*;
 
 import static saper.Saper.PROBABILITY;
-import static saper.Saper.Y_SMALL;
 
 public class Board extends JFrame {
     private JPanel buttonPanel;
     private Field[][] field;
+    private int sizeX;
+    private int sizeY;
+
+    private int clearFields;
+    private int unrevealedCount;
 
     private static final int DEFAULT_WIDTH = 400;
     private static final int DEFAULT_HEIGHT = 400;
@@ -32,6 +36,14 @@ public class Board extends JFrame {
         int xLosowa;
         int yLosowa;
 
+        int bombsNumber = (int) (PROBABILITY * x * y);
+
+        clearFields = x * y - bombsNumber;
+        unrevealedCount = clearFields;
+
+        sizeX = x;
+        sizeY = y;
+
         // Tworzy przyciski
         buttonPanel = new JPanel();
         field = new Field[x][y];
@@ -42,29 +54,26 @@ public class Board extends JFrame {
                 field[j][i] = new Field();
                 buttonPanel.add(field[j][i]);
                 field[j][i].setToolTipText("P: " + j + " " + i);
+
+                field[j][i].addActionListener(new FieldAction(j, i));
             }
         }
 
         // Przypisuje bomby
         int z = 0;
-        while (z < (int) (PROBABILITY * x * y)) {
+        while (z < (int) (bombsNumber)) {
             xLosowa = (int) (Math.random() * x);
             yLosowa = (int) (Math.random() * y);
-//            System.out.println("pos = " + xLosowa + " " + yLosowa);
             if (!field[xLosowa][yLosowa].getWithBomb()) {
                 field[xLosowa][yLosowa].setWithBomb(true);
                 z++;
-//                System.out.println("Dodano: " + z);
 
-                // Tymczasowe!
-                field[xLosowa][yLosowa].setText("B");
             }
         }
 
         // Ustawia ilość bomb w pobliżu
         for (int i = 0; i < y; i++) {
             for (int j = 0; j < x; j++) {
-                System.out.println("pos: " + j + " " + i);
                 if(!field[j][i].getWithBomb()) {
                     // Na górze
                     if (i > 0 && field[j][i - 1].getWithBomb()) {
@@ -111,5 +120,46 @@ public class Board extends JFrame {
 
 
         add(buttonPanel);
+    }
+
+    private class FieldAction implements ActionListener {
+        int posX;
+        int posY;
+
+        public FieldAction (int x, int y) {
+            posX = x;
+            posY = y;
+        }
+
+        @Override
+        public void actionPerformed (ActionEvent e) {
+            testField(posX, posY);
+        }
+    }
+
+    /**
+     * Sprawdza po kliknięciu, czy jest bomba i wykonuje odpowiednią akcję.
+     * @param x Pozycja x testowanego pola
+     * @param y POzycja y testowanego pola
+     */
+    public void testField (int x, int y) {
+        if (field[x][y].getWithBomb()) {
+            for (int i = 0; i < sizeY; i++) {
+                for (int j = 0; j < sizeX; j++) {
+                    if(field[j][i].getWithBomb()) {
+                        field[j][i].displayContent();
+                    }
+                }
+            }
+            JOptionPane.showMessageDialog(this, "GAME OVER");
+            System.exit(0);
+        } else {
+            field[x][y].displayContent();
+            unrevealedCount--;
+            System.out.println("unrevealedCount = " + unrevealedCount);
+            if (unrevealedCount == 0) {
+                JOptionPane.showMessageDialog(this, "WIN!");
+            }
+        }
     }
 }
