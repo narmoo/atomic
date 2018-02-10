@@ -15,11 +15,18 @@ public class Saper {
     public static final int X_LARGE = 32;
     public static final int Y_LARGE = 32;
 
-    public static final double PROBABILITY = 0.3;
+    public static final double PROBABILITY = 0.2;
 
     public static void main(String[] args)
     {
         EventQueue.invokeLater(() -> {
+            UIManager.LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
+            try {
+                UIManager.setLookAndFeel(infos[1].getClassName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             Board frame = new Board();
             frame.setTitle("Board");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -243,7 +243,7 @@ public class Calculator {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
 
         UIManager.LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
         try {
