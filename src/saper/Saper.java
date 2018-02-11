@@ -15,7 +15,7 @@ public class Saper {
     public static final int X_LARGE = 32;
     public static final int Y_LARGE = 32;
 
-    public static final double PROBABILITY = 0.2;
+    static final double PROBABILITY = 0.2;
 
     public static void main(String[] args)
     {
@@ -29,7 +29,7 @@ public class Saper {
 
             Board frame = new Board();
             frame.setTitle("Board");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             frame.setVisible(true);
 
             Toolkit kit = Toolkit.getDefaultToolkit();
@@ -44,6 +44,5 @@ public class Saper {
             frame.createFields(X_SMALL, Y_SMALL);
         });
     }
-
 
 }

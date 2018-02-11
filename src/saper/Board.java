@@ -7,7 +7,10 @@ package saper;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
+import static com.sun.javafx.scene.traversal.Direction.LEFT;
+import static saper.Board.Direction.RIGHT;
 import static saper.Saper.PROBABILITY;
 
 public class Board extends JFrame {
@@ -23,7 +26,7 @@ public class Board extends JFrame {
     private static final int DEFAULT_HEIGHT = 400;
 
 
-    public Board() {
+    Board() {
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
@@ -51,7 +54,7 @@ public class Board extends JFrame {
         buttonPanel.setLayout(new GridLayout(x, y));
         for (int i = 0; i < y; i++) {
             for (int j = 0; j < x; j++) {
-                field[j][i] = new Field();
+                field[j][i] = new Field(j, i);
                 buttonPanel.add(field[j][i]);
                 field[j][i].setToolTipText("P: " + j + " " + i);
 
@@ -126,7 +129,7 @@ public class Board extends JFrame {
         int posX;
         int posY;
 
-        public FieldAction (int x, int y) {
+        private FieldAction (int x, int y) {
             posX = x;
             posY = y;
         }
@@ -142,7 +145,8 @@ public class Board extends JFrame {
      * @param x Pozycja x testowanego pola
      * @param y POzycja y testowanego pola
      */
-    public void testField (int x, int y) {
+    private void testField (int x, int y) {
+        // Przegrana
         if (field[x][y].getWithBomb()) {
             for (int i = 0; i < sizeY; i++) {
                 for (int j = 0; j < sizeX; j++) {
@@ -155,6 +159,9 @@ public class Board extends JFrame {
             System.exit(0);
         } else {
             field[x][y].displayContent();
+            if (field[x][y].getNeighbours() == 0) {
+                findZeroes(x, y);
+            }
             unrevealedCount--;
             System.out.println("unrevealedCount = " + unrevealedCount);
             if (unrevealedCount == 0) {
@@ -162,4 +169,77 @@ public class Board extends JFrame {
             }
         }
     }
+
+    private void findZeroes(int posX, int posY) {
+        ArrayList<Field> workingField = new ArrayList<>();
+        ArrayList<Field> nextWorkingField = new ArrayList<>();
+        workingField.add(field[posX][posY]);
+
+        while (!workingField.isEmpty()) {
+            for (Field f:workingField) {
+                int x = f.getPosX();
+                int y = f.getPosY();
+                for (Direction direction : Direction.returnAll()) {
+                    int newX = x;
+                    int newY = y;
+                    switch (direction) {
+                        // W prawo
+                        case RIGHT:
+                            newX++;
+                            break;
+                        // W lewo
+                        case LEFt:
+                            newX--;
+                            break;
+                        // W górę
+                        case UP:
+                            newY--;
+                            break;
+                        // W dół
+                        case DOWN:
+                            newY++;
+                            break;
+                        // W górę lewo
+                        case UP_LEFT:
+                            newY--;
+                            newX--;
+                            break;
+                        // W górę prawo
+                        case UP_RIGHT:
+                            newY--;
+                            newX++;
+                            break;
+                        // W dół lewo
+                        case DOWN_LEFT:
+                            newY++;
+                            newX--;
+                            break;
+                        // W dół prawo
+                        case DOWN_RIGHT:
+                            newY++;
+                            newX++;
+                            break;
+                    }
+                    if (newX >= 0 && newY >= 0 && newX < sizeX  && newY < sizeY && field[newX][newY].isEnabled()) {
+                        if (field[newX][newY].getNeighbours() == 0) {
+                            nextWorkingField.add(field[newX][newY]);
+                        }
+                        field[newX][newY].displayContent();
+                    }
+                }
+            }
+            workingField.clear();
+            workingField.addAll(nextWorkingField);
+            nextWorkingField.clear();
+        }
+    }
+
+    enum Direction {
+        LEFt, RIGHT, UP, DOWN, UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT;
+
+        public static Direction[] returnAll() {
+            return new Direction[]{LEFt, RIGHT, UP, DOWN, UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT};
+        }
+    }
+
 }

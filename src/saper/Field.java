@@ -13,9 +13,14 @@ public class Field extends JButton {
     private boolean withBomb;
     private int neighbours;
     private boolean flag;
+    private int posX;
+    private int posY;
 
-    public Field() {
+    public Field(int x, int y) {
         super();
+
+        posX = x;
+        posY = y;
 
         flag = false;
 
@@ -58,10 +63,16 @@ public class Field extends JButton {
         if (this.getWithBomb()) {
             this.setText("B");
         } else {
-            this.setText(Integer.toString(neighbours));
+            if (neighbours > 0) this.setText(Integer.toString(neighbours));
         }
         this.setEnabled(false);
     }
 
+    public int getPosX() {
+        return posX;
+    }
 
+    public int getPosY() {
+        return posY;
+    }
 }
