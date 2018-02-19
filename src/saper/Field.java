@@ -5,9 +5,7 @@
 package saper;
 
 import javax.swing.*;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
 
 public class Field extends JButton {
     private boolean withBomb;
@@ -16,31 +14,24 @@ public class Field extends JButton {
     private int posX;
     private int posY;
 
-    public Field(int x, int y) {
+    Field(int x, int y) {
         super();
-
         posX = x;
         posY = y;
-
         flag = false;
+    }
 
-        addMouseListener(new MouseAdapter() {
+    public void setFlag (boolean newFlag) {
+        flag = newFlag;
+        if (flag) {
+            setText("F");
+        } else {
+            setText("");
+        }
+    }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0) {
-                    if (flag) {
-                        Field.super.setText("");
-                        flag = false;
-                    }
-                    else {
-                        Field.super.setText("F");
-                        flag = true;
-                    }
-                }
-            }
-
-        });
+    public boolean getFlag() {
+        return flag;
     }
 
     public boolean getWithBomb() {
@@ -59,12 +50,15 @@ public class Field extends JButton {
         neighbours++;
     }
 
-    public void displayContent() {
+    public void displayContent(){
         if (this.getWithBomb()) {
             this.setText("B");
         } else {
             if (neighbours > 0) this.setText(Integer.toString(neighbours));
         }
+        // Na chwilę zmienia kolor tekstu
+        this.setForeground(this.getBackground());
+        new Timer(100, e -> this.setForeground(Color.BLACK)).start();
         this.setEnabled(false);
     }
 
@@ -75,4 +69,5 @@ public class Field extends JButton {
     public int getPosY() {
         return posY;
     }
+
 }

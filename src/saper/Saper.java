@@ -19,30 +19,7 @@ public class Saper {
 
     public static void main(String[] args)
     {
-        EventQueue.invokeLater(() -> {
-            UIManager.LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
-            try {
-                UIManager.setLookAndFeel(infos[1].getClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            Board frame = new Board();
-            frame.setTitle("Board");
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setVisible(true);
-
-            Toolkit kit = Toolkit.getDefaultToolkit();
-            Dimension screenSize = kit.getScreenSize();
-            int screenHeight = screenSize.height;
-            int screenWidth = screenSize.width;
-            int frameWidth = frame.getWidth();
-            int frameHeight = frame.getWidth();
-
-            frame.setLocation(screenWidth / 2 - frameWidth / 2, screenHeight / 2 - frameHeight / 2);
-
-            frame.createFields(X_SMALL, Y_SMALL);
-        });
+        EventQueue.invokeLater(() -> Board.generate(X_SMALL, Y_SMALL));
     }
 
 }
