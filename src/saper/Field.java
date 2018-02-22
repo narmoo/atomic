@@ -1,33 +1,34 @@
 /**
- * Created by Maciek on 07.02.2018
+ * Created by Maciek on 21.02.2018
  */
 
 package saper;
 
-import javax.swing.*;
-import java.awt.*;
+import com.sun.istack.internal.NotNull;
 
-public class Field extends JButton {
+public class Field {
     private boolean withBomb;
     private int neighbours;
     private boolean flag;
     private int posX;
     private int posY;
+    private FieldBtn button;
+    private boolean clicked;
 
-    Field(int x, int y) {
+    public enum ContentType {BOMB, BLANK, NEIGHBOUR}
+
+    Field (int x, int y, @NotNull Board board) {
         super();
         posX = x;
         posY = y;
         flag = false;
+        button = new FieldBtn(posX, posY, board);
+        board.add(button);
     }
 
     public void setFlag (boolean newFlag) {
         flag = newFlag;
-        if (flag) {
-            setText("F");
-        } else {
-            setText("");
-        }
+        button.setFlag(flag);
     }
 
     public boolean getFlag() {
@@ -52,14 +53,13 @@ public class Field extends JButton {
 
     public void displayContent(){
         if (this.getWithBomb()) {
-            this.setText("B");
+            button.displayContent(ContentType.BOMB);
+        } else if (neighbours > 0){
+            button.displayContent(ContentType.NEIGHBOUR, neighbours);
         } else {
-            if (neighbours > 0) this.setText(Integer.toString(neighbours));
+            button.displayContent(ContentType.BLANK);
         }
-        // Na chwilę zmienia kolor tekstu
-        this.setForeground(this.getBackground());
-        new Timer(100, e -> this.setForeground(Color.BLACK)).start();
-        this.setEnabled(false);
+        this.clicked = true;
     }
 
     public int getPosX() {
@@ -68,6 +68,14 @@ public class Field extends JButton {
 
     public int getPosY() {
         return posY;
+    }
+
+    public FieldBtn getButton() {
+        return button;
+    }
+
+    public boolean isClicked() {
+        return clicked;
     }
 
 }

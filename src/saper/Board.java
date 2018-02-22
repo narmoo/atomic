@@ -4,17 +4,14 @@
 
 package saper;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 
 import static saper.Saper.PROBABILITY;
 
 
-public class Board extends JFrame {
+public class Board {
     private Field[][] field;
-    private JTextField toRevealTxt;
     private int sizeX;
     private int sizeY;
 
@@ -22,13 +19,15 @@ public class Board extends JFrame {
     private int unrevealedCount;
     private int bombsNumber;
 
-    private static final int DEFAULT_WIDTH = 400;
-    private static final int DEFAULT_HEIGHT = 400;
+    private BoardPanel buttonPanel;
+
+    static final int DEFAULT_WIDTH = 400;
+    static final int DEFAULT_HEIGHT = 400;
 
 
-    private Board() {
+    Board(int rows, int columns) {
         flaggedCount = 0;
-//        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        EventQueue.invokeLater(() -> createFields(rows, columns));
     }
 
     /**
@@ -40,6 +39,7 @@ public class Board extends JFrame {
         int xLosowa;
         int yLosowa;
 
+
         bombsNumber = (int) (PROBABILITY * columns * rows);
 
         unrevealedCount = columns * rows - bombsNumber;
@@ -47,32 +47,17 @@ public class Board extends JFrame {
         sizeX = columns;
         sizeY = rows;
 
-        // Tworzy panele
-        JPanel controlPanel = new JPanel();
-        JPanel buttonPanel = new JPanel();
-        toRevealTxt = new JTextField("", 3);
-        toRevealTxt.setEditable(false);
-        controlPanel.add(new JLabel("Bomb zostalo:"));
-        controlPanel.add(toRevealTxt);
-
-        add(controlPanel, BorderLayout.NORTH);
-        add(buttonPanel, BorderLayout.CENTER);
-
-        updateCounter(0);
-        setVisible(true);
-        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT + controlPanel.getHeight());
+        buttonPanel = new BoardPanel();
+        buttonPanel.createBoard(sizeX, sizeY);
+        buttonPanel.updateCounter(bombsNumber);
 
         // Tworzy przyciski
         field = new Field[columns][rows];
 
-        buttonPanel.setLayout(new GridLayout(columns, rows));
+
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < columns; x++) {
-                field[x][y] = new Field(x, y);
-                buttonPanel.add(field[x][y]);
-                field[x][y].setToolTipText("P: " + x + " " + y);
-                field[x][y].addActionListener(new FieldAction(x, y));
-                field[x][y].addMouseListener(new FieldMouseAction(field[x][y]));
+                field[x][y] = new Field(x, y, this);
             }
         }
 
@@ -129,46 +114,6 @@ public class Board extends JFrame {
         }
     }
 
-    private class FieldAction implements ActionListener {
-        int posX;
-        int posY;
-
-        private FieldAction (int x, int y) {
-            posX = x;
-            posY = y;
-        }
-
-        @Override
-        public void actionPerformed (ActionEvent e) {
-            if (!field[posX][posY].getFlag()) {
-                testField(posX, posY);
-            }
-        }
-    }
-
-    private class FieldMouseAction extends MouseAdapter {
-        Field object;
-
-        FieldMouseAction (Field object) {
-            this.object = object;
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0) {
-                object.setFlag(!object.getFlag());
-                if (object.getFlag()) {
-                    flaggedCount++;
-                    updateCounter(0);
-                } else {
-                    flaggedCount--;
-                    updateCounter(0);
-                }
-
-            }
-        }
-    }
-
 
     /**
      * Sprawdza po kliknięciu, czy jest bomba i wykonuje odpowiednią akcję.
@@ -185,7 +130,7 @@ public class Board extends JFrame {
                     }
                 }
             }
-            JOptionPane.showMessageDialog(this, "GAME OVER");
+            buttonPanel.doGameOver();
             System.exit(0);
         } else {
             field[posX][posY].displayContent();
@@ -193,8 +138,11 @@ public class Board extends JFrame {
                 findZeroes(posX, posY);
             }
             updateCounter(-1);
+
+            // Wygrana
             if (unrevealedCount == 0) {
-                JOptionPane.showMessageDialog(this, "WIN!");
+                buttonPanel.doWin();
+                System.exit(0);
             }
         }
 
@@ -202,14 +150,7 @@ public class Board extends JFrame {
 
     private void updateCounter(int amount) {
         unrevealedCount += amount;
-        System.out.println("unrevealedCount = " + unrevealedCount);
-//        flaggedCount -= amount;
-        toRevealTxt.setText(Integer.toString(bombsNumber - flaggedCount));
     }
-
-//    public void updateFlaggedCounter (int amount) {
-//        flaggedCount += amount;
-//    }
 
     private void findZeroes(int posX, int posY) {
         // Dwie listy - aktualna i następna
@@ -265,7 +206,7 @@ public class Board extends JFrame {
                             newX++;
                             break;
                     }
-                    if (newX >= 0 && newY >= 0 && newX < sizeX  && newY < sizeY && field[newX][newY].isEnabled()) {
+                    if (newX >= 0 && newY >= 0 && newX < sizeX  && newY < sizeY && !field[newX][newY].isClicked()) {
                         // Zerowe pola są dodawane do następnej listy
                         if (field[newX][newY].getNeighbours() == 0) {
                             nextWorkingField.add(field[newX][newY]);
@@ -283,37 +224,31 @@ public class Board extends JFrame {
         }
     }
 
+    public void clickField(int posX, int posY) {
+        if (!field[posX][posY].getFlag()) {
+            testField(posX, posY);
+        }
+    }
+
+    public void altClickField(int posX, int posY) {
+        Field f = field[posX][posY];
+        f.setFlag(!f.getFlag());
+        if (f.getFlag()) {
+            flaggedCount++;
+        } else {
+            flaggedCount--;
+        }
+        buttonPanel.updateCounter(bombsNumber - flaggedCount);
+    }
+
+    public void add(FieldBtn button) {
+        buttonPanel.addBtn(button);
+    }
+
     enum Direction {
         LEFt, RIGHT, UP, DOWN, UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT;
-
         public static Direction[] returnAll() {
             return new Direction[]{LEFt, RIGHT, UP, DOWN, UP_LEFT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT};
         }
     }
-
-    static Board generate(int sizeX, int sizeY) {
-        UIManager.LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
-        try {
-            UIManager.setLookAndFeel(infos[1].getClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Board frame = new Board();
-        frame.setTitle("Board");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-
-        // Centrowanie okienka
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Dimension screenSize = kit.getScreenSize();
-        int screenHeight = screenSize.height;
-        int screenWidth = screenSize.width;
-        int frameWidth = frame.getWidth();
-        int frameHeight = frame.getWidth();
-        frame.setLocation(screenWidth / 2 - frameWidth / 2, screenHeight / 2 - frameHeight / 2);
-        frame.createFields(sizeX, sizeY);
-        return frame;
-    }
-
 }
